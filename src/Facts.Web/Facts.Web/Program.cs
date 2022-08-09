@@ -1,5 +1,7 @@
+using Facts.Web.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -13,7 +15,7 @@ namespace Facts.Web
 {
     public class Program
     {
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
@@ -24,7 +26,14 @@ namespace Facts.Web
             try
             {
                 Log.Information("Starting web host");
-                CreateHostBuilder(args).Build().Run();
+                var host = CreateHostBuilder(args).Build();
+
+                using(var scope = host.Services.CreateScope())
+                {
+                    await DataInitializer.InitializeAsync(scope.ServiceProvider);
+                }
+
+                host.Run();
                 return 0;
             }
             catch (Exception ex)
@@ -39,7 +48,7 @@ namespace Facts.Web
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+            Host.CreateDefaultBuilder(args) 
                 .UseSerilog()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
