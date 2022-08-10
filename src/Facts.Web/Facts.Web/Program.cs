@@ -28,10 +28,10 @@ namespace Facts.Web
                 Log.Information("Starting web host");
                 var host = CreateHostBuilder(args).Build();
 
-                using(var scope = host.Services.CreateScope())
-                {
-                    await DataInitializer.InitializeAsync(scope.ServiceProvider);
-                }
+                //using(var scope = host.Services.CreateScope())
+                //{
+                //    //await DataInitializer.InitializeAsync(scope.ServiceProvider);
+                //}
 
                 host.Run();
                 return 0;
